@@ -170,7 +170,7 @@ ChernobayVictoriaCulminating() {
       c.clear();
       
       //draw background
-      Image welcomeImage = loadImage("minesweeperBackground.png");
+      Image welcomeImage = loadImage("MinesweeperBackground.png");
       c.drawImage(welcomeImage, 0, 0, c.getDrawWidth(), c.getDrawHeight());
       
       //draw squares on background
@@ -601,127 +601,35 @@ ChernobayVictoriaCulminating() {
       
    }
 
-      
-   private int nearbyBlocks (Console c, int [] blockValues, int blockNum, int rowClicked, int columnClicked, Image mine, int [] blockClicked, int flagsPlaced){//this method will check if any nearby blocks (up, down, left, right) to the one clicked, have mines. If they do not, they will be revealed to show an empty square or blocks
-      
-      //check nearby blocks, only the ones above, below, beside, not diagonal!!
-      //row = y, column = x
-      //C
-      if(rowClicked == 1 && columnClicked == 1){
-         if (blockValues[blockNum+6]>=0){//below
-            blockClicked[blockNum+6]=1;   
-            checkValues (c, blockValues, blockNum+6, ((columnClicked+2)*55)+12, ((rowClicked+1)*55)+53, 55);
-               
-         }
-         if (blockValues[blockNum+1]>=0){//beside - right  
-            checkValues (c, blockValues, blockNum+1, ((columnClicked+3)*55)+12, ((rowClicked)*55)+53, 55);
-            blockClicked[blockNum+1]=1;                  
-         }
-      }
-      //D
-      else if(rowClicked == 1 && columnClicked == 6){
-         if (blockValues[blockNum+6]>=0){//below
-            checkValues (c, blockValues, blockNum+6, ((columnClicked+2)*55)+12, ((rowClicked+1)*55)+53, 55);
-            blockClicked[blockNum+6]=1;                    
-         }
-        if (blockValues[blockNum-1]>=0){//beside - left
-            checkValues (c, blockValues, blockNum-1, ((columnClicked+1)*55)+12, ((rowClicked)*55)+53, 55);
-               blockClicked[blockNum-1]=1;                     
+  //something is crashing and not letting coded run, switched up nearby blocks, should run?    
+private int nearbyBlocks(Console c, int[] blockValues, int blockNum, int rowClicked, int columnClicked, Image mine, int[] blockClicked, int flagsPlaced) {
+    int squareSize = 55;
+    // Grid pixel formula: x = 123 + col*55, y = 53 + row*55
+
+    int[] nbBlocks = new int[4];
+    int[] nbRows   = new int[4];
+    int[] nbCols   = new int[4];
+    int count = 0;
+
+    if (rowClicked > 1)    { nbBlocks[count]=blockNum-6; nbRows[count]=rowClicked-1; nbCols[count]=columnClicked;   count++; }
+    if (rowClicked < 6)    { nbBlocks[count]=blockNum+6; nbRows[count]=rowClicked+1; nbCols[count]=columnClicked;   count++; }
+    if (columnClicked > 1) { nbBlocks[count]=blockNum-1; nbRows[count]=rowClicked;   nbCols[count]=columnClicked-1; count++; }
+    if (columnClicked < 6) { nbBlocks[count]=blockNum+1; nbRows[count]=rowClicked;   nbCols[count]=columnClicked+1; count++; }
+
+    for (int i = 0; i < count; i++) {
+        int nb = nbBlocks[i], nr = nbRows[i], nc = nbCols[i];
+        int nx = 123 + nc * squareSize;
+        int ny = 53  + nr * squareSize;
+        if (blockClicked[nb] != 1 && blockClicked[nb] != -2 && blockValues[nb] >= 0) {
+            blockClicked[nb] = 1;
+            checkValues(c, blockValues, nb, nx, ny, squareSize);
+            if (blockValues[nb] == 0) {   // blank cell → keep spreading
+                nearbyBlocks(c, blockValues, nb, nr, nc, mine, blockClicked, flagsPlaced);
+            }
         }
-      }
-      //E
-      else if(rowClicked == 6 && columnClicked == 1){
-         if (blockValues[blockNum-6]>=0){//above
-            checkValues (c, blockValues, blockNum-6, ((columnClicked+2)*55)+12, ((rowClicked-1)*55)+53, 55);
-            blockClicked[blockNum-6]=1;                     
-         }
-         if (blockValues[blockNum+1]>=0){//beside - right  
-            checkValues (c, blockValues, blockNum+1, ((columnClicked+3)*55)+12, ((rowClicked)*55)+53, 55);
-            blockClicked[blockNum+1]=1;                    
-         }
-      }
-      //F
-      else if(rowClicked == 6 && columnClicked == 6){
-         if (blockValues[blockNum-6]>=0){//above
-            checkValues (c, blockValues, blockNum-6, ((columnClicked+2)*55)+12, ((rowClicked-1)*55)+53, 55);
-            blockClicked[blockNum-6]=1;                               
-         }
-         if (blockValues[blockNum-1]>=0){//beside - left  
-            checkValues (c, blockValues, blockNum-1, ((columnClicked+1)*55)+12, ((rowClicked)*55)+53, 55);
-            blockClicked[blockNum-1]=1;                     
-         }
-      }
-      //a
-      else if ((columnClicked==1||columnClicked==6)){//column clicked 
-         if (blockValues[blockNum-6]>=0){//above
-            checkValues (c, blockValues, blockNum-6, ((columnClicked+2)*55)+12, ((rowClicked-1)*55)+53, 55);
-            blockClicked[blockNum-6]=1;                     
-         }
-         if (blockValues[blockNum+6]>=0){//below
-            checkValues (c, blockValues, blockNum+6, ((columnClicked+2)*55)+12, ((rowClicked+1)*55)+53, 55);
-            blockClicked[blockNum+6]=1;                               
-         }
-         if (columnClicked == 6){
-            if (blockValues[blockNum-1]>=0){//beside - left  
-            checkValues (c, blockValues, blockNum-1, ((columnClicked+1)*55)+12, ((rowClicked)*55)+53, 55);
-               blockClicked[blockNum-1]=1;                     
-            }
-         }
-         else{
-            if (blockValues[blockNum+1]>=0){//beside - right
-               checkValues (c, blockValues, blockNum+1, ((columnClicked+3)*55)+12, ((rowClicked)*55)+53, 55);
-               blockClicked[blockNum+1]=1;                     
-            }
-         }
-      }
-      
-      //b
-      else if ((rowClicked==1||rowClicked==6)){
-         if (blockValues[blockNum-1]>=0){//beside - left  
-            checkValues (c, blockValues, blockNum-1, ((columnClicked+1)*55)+12, ((rowClicked)*55)+53, 55);
-            blockClicked[blockNum-1]=1;                     
-         }
-         if (blockValues[blockNum+1]>=0){//beside - right
-            checkValues (c, blockValues, blockNum+1, ((columnClicked+3)*55)+12, ((rowClicked)*55)+53, 55);
-            blockClicked[blockNum+1]=1;                     
-         }
-         if (rowClicked ==1){
-            if (blockValues[blockNum+6]>=0){//below
-               checkValues (c, blockValues, blockNum+6, ((columnClicked+2)*55)+12, ((rowClicked+1)*55)+53, 55);
-               blockClicked[blockNum+6]=1;                             
-            }
-         }
-         if (rowClicked ==6){
-            if (blockValues[blockNum-6]>=0){//above
-               checkValues (c, blockValues, blockNum-6, ((columnClicked+2)*55)+12, ((rowClicked-1)*55)+53, 55);
-               blockClicked[blockNum-6]=1;                             
-            }
-         }
-
-      }
-      
-      //c
-      else{
-         if (blockValues[blockNum-1]>=0){//beside - left  
-            checkValues (c, blockValues, blockNum-1, ((columnClicked+1)*55)+12, ((rowClicked)*55)+53, 55);
-            blockClicked[blockNum-1]=1;                
-         }
-         if (blockValues[blockNum-6]>=0){//above
-            checkValues (c, blockValues, blockNum-6, ((columnClicked+2)*55)+12, ((rowClicked-1)*55)+53, 55);
-            blockClicked[blockNum-6]=1;                  
-         }
-         if (blockValues[blockNum+1]>=0){//beside - right
-            checkValues (c, blockValues, blockNum+1, ((columnClicked+3)*55)+12, ((rowClicked)*55)+53, 55);
-            blockClicked[blockNum+1]=1;                   
-         }
-         if (blockValues[blockNum+6]>=0){//below
-            checkValues (c, blockValues, blockNum+6, ((columnClicked+2)*55)+12, ((rowClicked+1)*55)+53, 55);
-            blockClicked[blockNum+6]=1;                              
-         }
-
-      }
-      return flagsPlaced;
-   }
+    }
+    return flagsPlaced;
+}
   
    private Image loadImage(String path){//load image
       Image img = null; 
